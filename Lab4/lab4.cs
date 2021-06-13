@@ -40,7 +40,7 @@ namespace Lab4
             Assert.IsTrue(resultAdd);
 
             int fileID = (int)db.GetIntBySql("SELECT MAX(FileID) FROM Files");
-            bool resultGet = db.GetFile(fileID, out string dbFileName, out byte[]dbFileContent);
+            bool resultGet = db.GetFile(fileID, out string dbFileName, out byte[] dbFileContent);
             Assert.IsTrue(resultGet);
 
             string dbFileDecodedContent = Encoding.ASCII.GetString(dbFileContent);
