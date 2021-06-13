@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using IIG.FileWorker;
 using IIG.BinaryFlag;
@@ -8,7 +8,6 @@ using System.Data;
 
 namespace Lab4
 {
-    
     [TestClass]
     public class FileWorkerTests
     {
@@ -19,6 +18,11 @@ namespace Lab4
         private const string Password = @"sa";
         private const int ConnectionTimeout = 75;
         private StorageDatabaseUtils db;
+
+        private int? GetId()
+        {
+            return db.GetIntBySql("SELECT MAX(FileID) FROM Files");
+        }
 
         [TestInitialize]
         public void TestInitialize()
@@ -31,21 +35,21 @@ namespace Lab4
         {
             string path = ".\\..\\..\\TestFiles\\emptyTestFile.txt";
             string fileName = BaseFileWorker.GetFileName(path);
-            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNotNull(fileName);
+            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNotNull(fileContent);
 
             byte[] encodedFileContent = Encoding.ASCII.GetBytes(fileContent);
             bool resultAdd = db.AddFile(fileName, encodedFileContent);
             Assert.IsTrue(resultAdd);
 
-            int fileID = (int)db.GetIntBySql("SELECT MAX(FileID) FROM Files");
+            int fileID = (int)GetId();
             bool resultGet = db.GetFile(fileID, out string dbFileName, out byte[] dbFileContent);
             Assert.IsTrue(resultGet);
+            Assert.AreEqual(fileName, dbFileName);
 
             string dbFileDecodedContent = Encoding.ASCII.GetString(dbFileContent);
             Assert.AreEqual(fileContent, dbFileDecodedContent);
-            Assert.AreEqual(fileName, dbFileName);
         }
 
         [TestMethod]
@@ -53,21 +57,21 @@ namespace Lab4
         {
             string path = ".\\..\\..\\TestFiles\\testFile1.txt";
             string fileName = BaseFileWorker.GetFileName(path);
-            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNotNull(fileName);
+            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNotNull(fileContent);
 
             byte[] encodedFileContent = Encoding.ASCII.GetBytes(fileContent);
             bool resultAdd = db.AddFile(fileName, encodedFileContent);
             Assert.IsTrue(resultAdd);
 
-            int fileID = (int)db.GetIntBySql("SELECT MAX(FileID) FROM Files");
+            int fileID = (int)GetId();
             bool resultGet = db.GetFile(fileID, out string dbFileName, out byte[] dbFileContent);
             Assert.IsTrue(resultGet);
+            Assert.AreEqual(fileName, dbFileName);
 
             string dbFileDecodedContent = Encoding.ASCII.GetString(dbFileContent);
             Assert.AreEqual(fileContent, dbFileDecodedContent);
-            Assert.AreEqual(fileName, dbFileName);
         }
 
         [TestMethod]
@@ -75,8 +79,8 @@ namespace Lab4
         {
             string path = ".\\..\\..\\TestFiles\\testFile2.txt";
             string fileName = BaseFileWorker.GetFileName(path);
-            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNotNull(fileName);
+            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNotNull(fileContent);
 
             byte[] encodedFileContent = Encoding.ASCII.GetBytes(fileContent);
@@ -91,21 +95,21 @@ namespace Lab4
         {
             string path = "D:\\Software-Engineering-Components\\Lab4\\Lab4\\TestFiles\\testFile3.txt";
             string fileName = BaseFileWorker.GetFileName(path);
-            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNotNull(fileName);
+            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNotNull(fileContent);
 
             byte[] encodedFileContent = Encoding.ASCII.GetBytes(fileContent);
             bool resultAdd = db.AddFile(fileName, encodedFileContent);
             Assert.IsTrue(resultAdd);
 
-            int fileID = (int)db.GetIntBySql("SELECT MAX(FileID) FROM Files");
+            int fileID = (int)GetId();
             bool resultGet = db.GetFile(fileID, out string dbFileName, out byte[] dbFileContent);
             Assert.IsTrue(resultGet);
+            Assert.AreEqual(fileName, dbFileName);
 
             string dbFileDecodedContent = Encoding.ASCII.GetString(dbFileContent);
             Assert.AreEqual(fileContent, dbFileDecodedContent);
-            Assert.AreEqual(fileName, dbFileName);
         }
 
         [TestMethod]
@@ -113,8 +117,8 @@ namespace Lab4
         {
             string path = null;
             string fileName = BaseFileWorker.GetFileName(path);
-            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNull(fileName);
+            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNull(fileContent);
 
             byte[] encodedFileContent = Encoding.ASCII.GetBytes("null path");
@@ -127,8 +131,8 @@ namespace Lab4
         {
             string path = "";
             string fileName = BaseFileWorker.GetFileName(path);
-            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNull(fileName);
+            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNull(fileContent);
 
             byte[] encodedFileContent = Encoding.ASCII.GetBytes("empty string path");
@@ -152,8 +156,8 @@ namespace Lab4
         {
             string path = ".\\..\\..\\TestFiles\\dfhdfgert.txt";
             string fileName = BaseFileWorker.GetFileName(path);
-            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNull(fileName);
+            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNull(fileContent);
 
             byte[] encodedFileContent = Encoding.ASCII.GetBytes("not existing path");
@@ -166,8 +170,8 @@ namespace Lab4
         {
             string path = ".\\..\\..\\TestFiles\\";
             string fileName = BaseFileWorker.GetFileName(path);
-            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNull(fileName);
+            string fileContent = BaseFileWorker.ReadAll(path);
             Assert.IsNull(fileContent);
 
             byte[] encodedFileContent = Encoding.ASCII.GetBytes("not existing file name");
@@ -187,27 +191,15 @@ namespace Lab4
         private const int ConnectionTimeout = 75;
         private FlagpoleDatabaseUtils db;
 
+        private int? GetId()
+        {
+            return db.GetIntBySql("SELECT MAX(MultipleBinaryFlagID) FROM MultipleBinaryFlags");
+        }
+
         [TestInitialize]
         public void TestInitialize()
         {
             db = new FlagpoleDatabaseUtils(Server, Database, IsTrusted, Login, Password, ConnectionTimeout);
-        }
-        
-        [DataTestMethod]
-        [DataRow((ulong)1, true)]
-        [DataRow((ulong)1, false)]
-        [DataRow((ulong)17179868705, true)]
-        [DataRow((ulong)17179868705, false)]
-        public void Test_OutOfRangeLength(ulong length, bool initialValue)
-        {
-            try
-            {
-                MultipleBinaryFlag binaryFlag = new MultipleBinaryFlag(length, initialValue);
-            }
-            catch (Exception)
-            {
-                Assert.IsTrue(true);
-            }
         }
 
         [DataTestMethod]
@@ -219,26 +211,19 @@ namespace Lab4
         [DataRow((ulong)65, false)]
         public void Test_InRangeLength(ulong length, bool initialValue)
         {
-            try
-            {
-                MultipleBinaryFlag multipleFlag = new MultipleBinaryFlag(length, initialValue);
-                string flagString = multipleFlag.ToString();
-                bool flagValue = (bool)multipleFlag.GetFlag();
+            MultipleBinaryFlag multipleFlag = new MultipleBinaryFlag(length, initialValue);
+            string flagString = multipleFlag.ToString();
+            bool flagValue = (bool)multipleFlag.GetFlag();
 
-                bool resultAdd = db.AddFlag(flagString, flagValue);
-                Assert.IsTrue(resultAdd);
+            bool resultAdd = db.AddFlag(flagString, flagValue);
+            Assert.IsTrue(resultAdd);
 
-                int flagID = (int)db.GetIntBySql("SELECT MAX(MultipleBinaryFlagID) FROM MultipleBinaryFlags");
-                bool resultGet = db.GetFlag(flagID, out string flagView, out bool? dbFlagValue);
-                Assert.IsTrue(resultGet);
+            int flagID = (int)GetId();
+            bool resultGet = db.GetFlag(flagID, out string flagView, out bool? dbFlagValue);
+            Assert.IsTrue(resultGet);
 
-                Assert.AreEqual(flagString, flagView);
-                Assert.AreEqual(flagValue, dbFlagValue);
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-            }
+            Assert.AreEqual(flagString, flagView);
+            Assert.AreEqual(flagValue, dbFlagValue);
         }
 
         [DataTestMethod]
@@ -251,27 +236,20 @@ namespace Lab4
         [DataRow((ulong)65, true, (ulong)63)]
         public void Test_InRangeLength_ResetSomeFlags(ulong length, bool initialValue, ulong resetId)
         {
-            try
-            {
-                MultipleBinaryFlag multipleFlag = new MultipleBinaryFlag(length, initialValue);
-                multipleFlag.ResetFlag(resetId);
-                string flagString = multipleFlag.ToString();
-                bool flagValue = (bool)multipleFlag.GetFlag();
+            MultipleBinaryFlag multipleFlag = new MultipleBinaryFlag(length, initialValue);
+            multipleFlag.ResetFlag(resetId);
+            string flagString = multipleFlag.ToString();
+            bool flagValue = (bool)multipleFlag.GetFlag();
 
-                bool resultAdd = db.AddFlag(flagString, flagValue);
-                Assert.IsTrue(resultAdd);
+            bool resultAdd = db.AddFlag(flagString, flagValue);
+            Assert.IsTrue(resultAdd);
 
-                int flagID = (int)db.GetIntBySql("SELECT MAX(MultipleBinaryFlagID) FROM MultipleBinaryFlags");
-                bool resultGet = db.GetFlag(flagID, out string flagView, out bool? dbFlagValue);
-                Assert.IsTrue(resultGet);
+            int flagID = (int)GetId();
+            bool resultGet = db.GetFlag(flagID, out string flagView, out bool? dbFlagValue);
+            Assert.IsTrue(resultGet);
 
-                Assert.AreEqual(flagString, flagView);
-                Assert.AreEqual(flagValue, dbFlagValue);
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-            }
+            Assert.AreEqual(flagString, flagView);
+            Assert.AreEqual(flagValue, dbFlagValue);
         }
 
         [DataTestMethod]
@@ -284,27 +262,20 @@ namespace Lab4
         [DataRow((ulong)65, false, (ulong)63)]
         public void Test_InRangeLength_SetSomeFlags(ulong length, bool initialValue, ulong setId)
         {
-            try
-            {
-                MultipleBinaryFlag multipleFlag = new MultipleBinaryFlag(length, initialValue);
-                multipleFlag.SetFlag(setId);
-                string flagString = multipleFlag.ToString();
-                bool flagValue = (bool)multipleFlag.GetFlag();
+            MultipleBinaryFlag multipleFlag = new MultipleBinaryFlag(length, initialValue);
+            multipleFlag.SetFlag(setId);
+            string flagString = multipleFlag.ToString();
+            bool flagValue = (bool)multipleFlag.GetFlag();
 
-                bool resultAdd = db.AddFlag(flagString, flagValue);
-                Assert.IsTrue(resultAdd);
+            bool resultAdd = db.AddFlag(flagString, flagValue);
+            Assert.IsTrue(resultAdd);
 
-                int flagID = (int)db.GetIntBySql("SELECT MAX(MultipleBinaryFlagID) FROM MultipleBinaryFlags");
-                bool resultGet = db.GetFlag(flagID, out string flagView, out bool? dbFlagValue);
-                Assert.IsTrue(resultGet);
+            int flagID = (int)GetId();
+            bool resultGet = db.GetFlag(flagID, out string flagView, out bool? dbFlagValue);
+            Assert.IsTrue(resultGet);
 
-                Assert.AreEqual(flagString, flagView);
-                Assert.AreEqual(flagValue, dbFlagValue);
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-            }
+            Assert.AreEqual(flagString, flagView);
+            Assert.AreEqual(flagValue, dbFlagValue);
         }
 
         [DataTestMethod]
@@ -321,8 +292,8 @@ namespace Lab4
                 MultipleBinaryFlag multipleFlag = new MultipleBinaryFlag(length, initialValue);
                 multipleFlag.Dispose();
                 string flagString = multipleFlag.ToString();
-                bool? flagValue = multipleFlag.GetFlag();
                 Assert.IsNull(flagString);
+                bool? flagValue = multipleFlag.GetFlag();
                 Assert.IsNull(flagValue);
 
                 
@@ -333,6 +304,19 @@ namespace Lab4
             {
                 Assert.IsTrue(true);
             }
+        }
+
+        [DataTestMethod]
+        [DataRow(" ", true)]
+        [DataRow(" ", false)]
+        [DataRow("Invalid Flag View String", true)]
+        [DataRow("Invalid Flag View String", false)]
+        [DataRow(null, true)]
+        [DataRow(null, false)]
+        public void Test_InvalidFlagView(string flagView, bool flagValue)
+        {
+            bool resultAdd = db.AddFlag(flagView, flagValue);
+            Assert.IsFalse(resultAdd);
         }
     }
 }
